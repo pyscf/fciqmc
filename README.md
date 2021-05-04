@@ -7,9 +7,9 @@ FCIQMC interface
 
 Install
 -------
-* Install to python site-package folder
+* Install to python site-packages folder
 ```
-pip install https://github.com/pyscf/fciqmcscf
+pip install git+https://github.com/pyscf/fciqmcscf
 ```
 
 * Install in a custom folder for development
@@ -22,3 +22,11 @@ echo 'export PYSCF_EXT_PATH=/home/abc/local/path:$PYSCF_EXT_PATH' >> ~/.bashrc
 
 You can find more details of extended modules in the document
 [extension modules](http://pyscf.org/pyscf/install.html#extension-modules)
+
+* Using FCIQMC as the FCI solver for CASSCF. The FCIQMC program is maintained by
+  Booth group at Cambridge
+
+      NECI (https://github.com/ghb24/NECI_STABLE)
+
+  After installing the NECI, the path of its binary file needs to be added to
+  pyscf/fciqmcscf/settings.py
