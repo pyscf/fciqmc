@@ -834,7 +834,7 @@ def read_neci_two_pdm(fciqmcci, filename, norb, directory='.'):
     # Copy the 2RDM part of the active space.
     two_pdm = numpy.zeros( (norb, norb, norb, norb) )
     actstart = nfrzorb
-    actend = norb - fciqmcci.nfreezevirt/2
+    actend = norb - fciqmcci.nfreezevirt//2
     two_pdm[actstart:actend, actstart:actend, actstart:actend, actstart:actend] = two_pdm_active
 
     # Interaction between frozen and active space.
