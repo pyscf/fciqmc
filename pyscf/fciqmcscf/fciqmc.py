@@ -812,8 +812,8 @@ def read_neci_two_pdm(fciqmcci, filename, norb, directory='.'):
             # Therefore, all we need to do is to swap the middle two indices.
             ind1 = int(linesp[0]) - 1
             ind2 = int(linesp[2]) - 1
-            ind3 = int(linesp[1]) - 1
-            ind4 = int(linesp[3]) - 1
+            ind3 = int(linesp[3]) - 1
+            ind4 = int(linesp[1]) - 1
             assert(int(ind1) < norb_active)
             assert(int(ind2) < norb_active)
             assert(int(ind3) < norb_active)
@@ -826,6 +826,18 @@ def read_neci_two_pdm(fciqmcci, filename, norb, directory='.'):
             two_pdm_active[ind1, ind2, ind3, ind4] = float(linesp[4])
 
     f.close()
+
+    #fill missing two_pdm_active entries (NECI only saves those not identical by symmetry)
+    ids = numpy.where(two_pdm_active != 0)
+    ids = list(zip(*ids))
+    for id1, id2, id3, id4 in ids:
+        z = two_pdm_active[id1, id2, id3, id4]
+        #hermiticity
+        two_pdm_active[id2, id1, id4, id3] = z
+        #creation / creation and annihilation / annihilation swapping
+        two_pdm_active[id3, id4, id1, id2] = z
+        #hermiticity and creation / creation and annihilation / annihilation swapping
+        two_pdm_active[id4, id3, id2, id1] = z
 
     # In order to add any frozen core, we first need to find the spin-free
     # 1-RDM in the active space.
