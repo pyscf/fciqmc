@@ -91,6 +91,7 @@ class FCIQMCCI(object):
         self.orbsym = []
         self.pg_symmetry = 1
         self.state_weights = [1.0]
+        self.GUGA = False
         # This is the number of spin orbitals to freeze in the NECI calculation.
         # Note that if you do this for a CASSCF calculation, it will freeze in
         # the active space.
@@ -401,11 +402,16 @@ def write_fciqmc_config_file(fciqmcci, neleca, nelecb, restart, tUHF=False):
     f.write('freeformat\n')
     f.write('electrons %d\n' % (neleca+nelecb))
     # fci-core requires these two options.
-    f.write('spin-restrict %d\n' %(-fciqmcci.mol.spin))
     f.write('sym %d 0 0 0\n' % (fciqmcci.pg_symmetry-1))
-    f.write('nonuniformrandexcits 4ind-weighted\n')
-    if not (tUHF or fciqmcci.mol.spin != 0):
-        f.write('hphf 0\n')
+    if fciqmcci.GUGA:
+        f.write('nonuniformrandexcits mol_guga_weighted\n')
+        f.write('guga %d\n' %(fciqmcci.mol.spin))
+    else:
+        f.write('nonuniformrandexcits pchb\n')
+        if not (tUHF or fciqmcci.mol.spin != 0):
+            f.write('hphf 0\n')
+        else:
+            f.write('spin-restrict %d\n' %(-fciqmcci.mol.spin))
     f.write('nobrillouintheorem\n')
     if nstates > 1:
         f.write('system-replicas %d\n' % (2*nstates))
@@ -810,10 +816,16 @@ def read_neci_two_pdm(fciqmcci, filename, norb, directory='.'):
             # We reorder from D[i,j,k,l] = < i^+ j^+ l k >
             # to              D[i,j,k,l] = < i^+ k^+ l j > to match pyscf
             # Therefore, all we need to do is to swap the middle two indices.
-            ind1 = int(linesp[0]) - 1
-            ind2 = int(linesp[2]) - 1
-            ind3 = int(linesp[3]) - 1
-            ind4 = int(linesp[1]) - 1
+            if fciqmcci.GUGA:
+                ind1 = int(linesp[0]) - 1
+                ind2 = int(linesp[1]) - 1
+                ind3 = int(linesp[2]) - 1
+                ind4 = int(linesp[3]) - 1
+            else:
+                ind1 = int(linesp[0]) - 1
+                ind2 = int(linesp[2]) - 1
+                ind3 = int(linesp[3]) - 1
+                ind4 = int(linesp[1]) - 1
             assert(int(ind1) < norb_active)
             assert(int(ind2) < norb_active)
             assert(int(ind3) < norb_active)
